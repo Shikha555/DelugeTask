@@ -1,0 +1,65 @@
+void automation.TestCreator(int dealId)
+{
+	//Fetch the deal information from Deal Module
+	dealData = zoho.crm.getRecordById("Deals", dealId);
+	amount = dealData.getJSON("Amount");
+	discount = dealData.getJSON("Discount");
+	name = dealData.getJSON("Deal_Name");
+	email = dealData.getJSON("Email");
+	phone = dealData.getJSON("phone");
+	if (discount == null)
+	{
+		discount = 0;
+	}
+	else 
+    {
+		discount = discount;
+    }
+	//Grand Total is Amount - Discount
+	grandTotal = amount - discount;
+	//Update the Grand total in deal
+	updateRecord = zoho.crm.updateRecord("Deals", dealId, {"Grand_Total":grandTotal},{"trigger":"workflow"});
+	//Creation of JSON Payload to Push the data to  an ERP system like SAP or NetSuite
+	mp = Map();
+	mp.put("Customer",name);
+	mp.put("Value",grandTotal);
+	mp.put("Date",zoho.currentdate);
+	//Invoke the URL
+	resp = invokeurl
+    [
+    	url: "https://noisy-blog.info"
+    	type: POST
+    	parameters: mp.toString()
+    ];
+	//Push the data to a Creator Form
+	//Searching if the Record exist in Creator 
+	criteria = "CRM_Deal_Id == \"" + dealId + "\"";
+	searchRecord = zoho.creator.getRecords("alijhaver1", "leads", "Leads_Report", criteria, 1, 200, "creator1");
+	info searchRecord;
+	if (searchRecord.get("data").size() > 0)
+	{
+		//record Exists
+		creatorRecordId = searchRecord.get("data").get(0).get("ID");
+		updateMap = Map();
+		updateMap.put("Ticket_Status","VIP Upgrade");
+		mp = Map();
+		updateExistingRecord = zoho.creator.updateRecord("alijhaver1", "leads", "Leads_Report",creatorRecordId ,updateMap,mp, "creator1");
+		info updateExistingRecord;
+	}
+	if(searchRecord.get("message").contains("No records found for the given criteria.")==true)
+    {
+		//Record does not Exist
+		info "matched";
+		
+		createMap = Map();
+		createMap.put("Name",name);
+		createMap.put("Email",email);
+		createMap.put("Phone_Number",phone);
+		createMap.put("Ticket_Status","Standard");
+		optionalMap = Map();
+		createRecord = zoho.creator.createRecord("alijhaver1", "leads", "Leads", createMap,optionalMap, "creator1");
+		info createRecord;
+		
+    }
+
+}
