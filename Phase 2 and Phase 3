@@ -34,7 +34,7 @@ void automation.TestCreator(int dealId)
 	//Push the data to a Creator Form
 	//Searching if the Record exist in Creator 
 	criteria = "CRM_Deal_Id == \"" + dealId + "\"";
-	searchRecord = zoho.creator.getRecords("alijhaver1", "leads", "Leads_Report", criteria, 1, 200, "creator1");
+	searchRecord = zoho.creator.getRecords("shikha", "leads", "Leads_Report", criteria, 1, 200, "creator1");
 	info searchRecord;
 	if (searchRecord.get("data").size() > 0)
 	{
@@ -43,7 +43,7 @@ void automation.TestCreator(int dealId)
 		updateMap = Map();
 		updateMap.put("Ticket_Status","VIP Upgrade");
 		mp = Map();
-		updateExistingRecord = zoho.creator.updateRecord("alijhaver1", "leads", "Leads_Report",creatorRecordId ,updateMap,mp, "creator1");
+		updateExistingRecord = zoho.creator.updateRecord("shikha", "leads", "Leads_Report",creatorRecordId ,updateMap,mp, "creator1");
 		info updateExistingRecord;
 	}
 	if(searchRecord.get("message").contains("No records found for the given criteria.")==true)
@@ -57,7 +57,7 @@ void automation.TestCreator(int dealId)
 		createMap.put("Phone_Number",phone);
 		createMap.put("Ticket_Status","Standard");
 		optionalMap = Map();
-		createRecord = zoho.creator.createRecord("alijhaver1", "leads", "Leads", createMap,optionalMap, "creator1");
+		createRecord = zoho.creator.createRecord("shikha", "leads", "Leads", createMap,optionalMap, "creator1");
 		info createRecord;
 		
     }
