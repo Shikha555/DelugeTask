@@ -1,0 +1,36 @@
+//Fetch Ticket Details
+tickets = zoho.desk.getRecordById("648609145", "tickets", tId);
+//info tickets;
+contact = tickets.get("contactId");
+contactData = zoho.desk.getRecordById("648609145","contacts",contact);
+//info contactData;
+zohoCRMContact = contactData.get("zohoCRMContact");
+//CRM Contact ID
+zcontactId = zohoCRMContact.get("id");
+TicketID = tickets.get("ticketNumber");
+discription = "WARNING: Active Refund Request (Ticket #["+TicketID+"])";
+updateContact = zoho.crm.updateRecord("Contacts", zcontactId,{"Description":discription});
+//Create Task for Deal Owner
+//Fetch Deal related with the contact
+dealData = zoho.crm.getRelatedRecords("Deals", "Contacts", zcontactId);
+info dealData;
+if (dealData.isEmpty() == false)
+{
+	//Fetch CRM Deal Id
+	dealId = dealData.get("id");
+	//Fetch CRM Deal Owner
+	dealOwner = dealData.get("Owner").get("id");
+	//Reminder on the creation of ticket
+	reminder = Map();
+	reminder.put("ALARM","FREQ=NONE;ACTION=POPUP;TRIGGER=DATE-TIME:"+zoho.currenttime);
+
+	//JSON To Cretate the TASK in CRM For Deal Owner
+	createMap = Map();
+	createMap.put("Owner",dealOwner);
+	createMap.put("Subject","Call Client regarding Refund");
+	createMap.put("$se_module","Contacts");
+	createMap.put("Who_Id",zcontactId);
+	createMap.put("Remind_At",reminder);
+        createMap.put("Pop_up",true);
+	creteTask = zoho.crm.createRecord("Tasks",createMap);
+}
